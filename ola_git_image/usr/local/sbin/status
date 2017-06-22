@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Print status 
+FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq)
+echo "My cpus are running at $FREQ Hz"
+GOV=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+echo "With $GOV governor"
+echo -n "Cpu "
+/opt/vc/bin/vcgencmd measure_temp

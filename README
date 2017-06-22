@@ -1,0 +1,11 @@
+OLA rpi3 image builder.
+
+This is a set of scripts used to build OLA images for Raspberry Pi 3. There are
+multiple scripts depending on what you want to achieve.
+
+In the directory 'ola_git_image', you will find a script to create an image.
+OLA will be compiled by the rpi3 automatically on first boot.
+In the directory 'ola_crosscompile_debian_x64', you will find a script to create
+an image, same as before, but OLA will be cross compiled when building the image
+and it will be ready to use. not working at the moment.
+Other cross compile directories will be added when the first one is ok.
