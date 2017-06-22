@@ -7,7 +7,7 @@ sets everything up so that OLA gets compiled on first boot.
 
 #############################################################################
 This script is configured to overclock the rpi3, be careful, use a heatsink.
-(or modify the include /boot/config.txt , /etc/rc.local and
+(or modify the included /boot/config.txt , /etc/rc.local and
 /etc/rc.local.final to disable overclocking)
 ##############################################################################
 
