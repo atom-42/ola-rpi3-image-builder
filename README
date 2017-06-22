@@ -1,11 +1,30 @@
 OLA rpi3 image builder.
 
-This is a set of scripts used to build OLA images for Raspberry Pi 3. There are
-multiple scripts depending on what you want to achieve.
+This script builds an OLA image for Rapsberry Pi 3.
 
-In the directory 'ola_git_image', you will find a script to create an image.
-OLA will be compiled by the rpi3 automatically on first boot.
-In the directory 'ola_crosscompile_debian_x64', you will find a script to create
-an image, same as before, but OLA will be cross compiled when building the image
-and it will be ready to use. not working at the moment.
-Other cross compile directories will be added when the first one is ok.
+Basically it downloads the latests raspbian lite image, clones the OLA repo and
+sets everything up so that OLA gets compiled on first boot.
+
+#############################################################################
+This script is configured to overclock the rpi3, be careful, use a heatsink.
+(or modify the include /boot/config.txt , /etc/rc.local and
+/etc/rc.local.final to disable overclocking)
+##############################################################################
+
+Once you have executed the script, you will have a zip file containing the image and the md5 checksum.
+if you want to put the image on your rpi, first unzip it, then check the md5sum :
+
+$ unzip ola-rpi3.zip
+$ md5sum -c ola-rpi3.md5
+
+To flash the image, you should probably do something like that :
+dd if=ola-rpi3.img of=/dev/SDCARD bs=4M
+
+Your rpi needs to be connected to the internet on its first boot since the system gets automatically updated before compiling OLA.
+
+Compilation takes about an hour, the rpi3 reboots automatically when it's done and OLA should be working.
+
+A good thing to do when you have a working OLA on your rpi is to backup the sd card, useful if you encounter problems such as filesystem
+corruption due to power loss, or if you want to quickly have another ola node on another rpi, without having to wait an hour:
+
+dd if=/dev/SDCARD of=/home/ola-backup.img bs=4M
