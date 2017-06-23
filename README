@@ -7,9 +7,8 @@ sets everything up so that OLA gets compiled on first boot.
 
 #############################################################################
 This script is configured to overclock the rpi3, be careful, use a heatsink.
-(or modify the included /boot/config.txt , /etc/rc.local and
-/etc/rc.local.final to disable overclocking)
-##############################################################################
+(or use the no-oc version)
+#############################################################################
 
 Once you have executed the script, you will have a zip file containing the image and the md5 checksum.
 if you want to put the image on your rpi, first unzip it, then check the md5sum :
@@ -24,7 +23,8 @@ Your rpi needs to be connected to the internet on its first boot since the syste
 
 Compilation takes about an hour, the rpi3 reboots automatically when it's done and OLA should be working.
 
-A good thing to do when you have a working OLA on your rpi is to backup the sd card, useful if you encounter problems such as filesystem
-corruption due to power loss, or if you want to quickly have another ola node on another rpi, without having to wait an hour:
+A good thing to do when you have a working OLA on your rpi is to backup the sd card, useful if you encounter problems such as
+filesystem corruption due to power loss, or if you want to quickly have another ola node on another rpi,
+without having to wait an hour:
 
 dd if=/dev/SDCARD of=/home/ola-backup.img bs=4M
