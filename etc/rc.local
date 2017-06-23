@@ -33,6 +33,10 @@ echo "ola:openlighting" | chpasswd
 # change owner of ola's home directory since it was created before the user
 /bin/chown -R ola:ola /home/ola
 
+# be sure the update doesn't override our boot/config.txt
+chmod -w /boot/config.txt
+chattr -f +i /boot/config.txt
+
 # install dependencies needed to compile
 /usr/bin/apt-get -y update
 /usr/bin/apt-get -y --force-yes upgrade
@@ -44,6 +48,10 @@ echo "ola:openlighting" | chpasswd
 	libprotobuf-dev zlib1g-dev bison flex make libftdi-dev libftdi1 \
 	libusb-1.0-0-dev liblo-dev libavahi-client-dev avahi-daemon libprotoc-dev \
 	python2.7-numpy
+
+# free boot/config.txt
+chattr -f -i /boot/config.txt
+chmod +w /boot/config.txt
 
 # modify dns resolver
 echo "nameserver 208.67.222.222" > /etc/resolv.conf
