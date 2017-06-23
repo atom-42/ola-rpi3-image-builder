@@ -1,0 +1,71 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# assume there is no /etc/hostip until we have run at least once
+if [ ! -f /etc/hostip ]; then
+    # once-off initialization
+    echo "Welcome to Raspberry Pi - one-off initialization"
+    [ -x /sbin/ldconfig ] && /sbin/ldconfig
+    [ -x /sbin/insserv ] && /sbin/insserv networking 2>/dev/null
+    rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
+fi
+
+# Fix NTP in case we are using built-in wifi
+/sbin/iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
+
+# add ola user with password "openlighting"
+/usr/sbin/useradd ola -m -G adm,dialout,sudo,plugdev,users,input,netdev,spi,i2c,gpio
+echo "ola:openlighting" | chpasswd
+
+# change owner of ola's home directory since it was created before the user
+/bin/chown -R ola:ola /home/ola
+
+# be sure the update doesn't override our boot/config.txt
+chmod -w /boot/config.txt
+chattr -f +i /boot/config.txt
+
+# install dependencies needed to compile
+/usr/bin/apt-get -y update
+/usr/bin/apt-get -y --force-yes upgrade
+/usr/bin/apt-get autoclean
+/usr/bin/apt-get clean
+/usr/bin/apt-get -y install libcppunit-dev libcppunit-1.13-0 uuid-dev pkg-config \
+	libncurses5-dev libtool autoconf automake g++ libmicrohttpd-dev \
+	libmicrohttpd10 protobuf-compiler libprotobuf-lite9 python-protobuf \
+	libprotobuf-dev zlib1g-dev bison flex make libftdi-dev libftdi1 \
+	libusb-1.0-0-dev liblo-dev libavahi-client-dev avahi-daemon libprotoc-dev \
+	python2.7-numpy
+
+# free boot/config.txt
+chattr -f -i /boot/config.txt
+chmod +w /boot/config.txt
+
+# modify dns resolver
+echo "nameserver 208.67.222.222" > /etc/resolv.conf
+
+# compile ola
+/bin/su ola -c "cd /home/ola/ola && autoreconf -i"
+/bin/su ola -c "cd /home/ola/ola && ./configure --enable-rdm-tests"
+/bin/su ola -c "cd /home/ola/ola && make -j4"
+/bin/su ola -c "cd /home/ola/ola && make check"
+cd /home/ola/ola && /usr/bin/make install
+/sbin/ldconfig
+/bin/systemctl enable olad
+/bin/systemctl enable ssh
+
+# replace this one time script with the final version
+rm -f /etc/rc.local
+mv /etc/rc.local.final /etc/rc.local
+/sbin/reboot
+
+exit 0
