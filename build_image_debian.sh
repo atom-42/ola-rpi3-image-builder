@@ -6,8 +6,7 @@ RASPBIANURL="https://downloads.raspberrypi.org/raspbian_lite_latest"
 WORKINGDIR=$(pwd)
 BASEDIR="$WORKINGDIR"
 
-# The script must be run as root, could be sudo, but it's not so secure to allow
-# a user to sudo every command.
+# The script must be run as root.
 if (( $EUID != 0 )); then
     echo "Please run as root"
     exit 42
