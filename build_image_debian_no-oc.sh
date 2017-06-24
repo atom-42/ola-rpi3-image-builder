@@ -123,8 +123,8 @@ function setupImage {
     echo "Setting up image..."
     cd $WORKINGDIR
     cp -r boot $MOUNTPOINT/
-    cp -r etc $MOUNTPOINT/
-    cp -r home $MOUNTPOINT/
+    cp -r files/etc $MOUNTPOINT/
+    cp -r files/home $MOUNTPOINT/
     cp -r usr $MOUNTPOINT/
     rm -f $MOUNTPOINT/boot/config.txt
     rm -f $MOUNTPOINT/etc/rc.local
