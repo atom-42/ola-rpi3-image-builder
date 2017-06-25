@@ -122,11 +122,14 @@ function cloneOla {
 function setupImage {
     echo "Setting up image..."
     cd $WORKINGDIR
-    cp -r boot $MOUNTPOINT/
     cp -r files/etc $MOUNTPOINT/
     cp -r files/home $MOUNTPOINT/
-    cp -r usr $MOUNTPOINT/
     cp olad.service $MOUNPOINT/etc/systemd/system/
+}
+
+# apply different patches to boot/config.txt and etc/rc.local
+function applyPatches {
+    # TODO
 }
 
 # unmount Raspbian image
@@ -170,9 +173,10 @@ setupLoop || exit 5
 mountRaspbian || exit 6
 cloneOla || exit 7
 setupImage || exit 8
-unmountRaspbian || exit 9
-freeLoop || exit 10
-calculateMD5 || exit 11
-zipImage || exit 12
-cleanup || exit 13
+applyPatches || exit 9
+unmountRaspbian || exit 10
+freeLoop || exit 11
+calculateMD5 || exit 12
+zipImage || exit 13
+cleanup || exit 14
 echo "Done. The image is $INSTALLDIR/$OUT.zip"
