@@ -130,7 +130,8 @@ function setupImage {
 
 # apply different patches to boot/config.txt and etc/rc.local
 function applyPatches {
-    # TODO
+    cd $WORKINGDIR
+    patch $MOUNTPOINT/boot/config.txt < config.patch
 }
 
 # unmount Raspbian image
