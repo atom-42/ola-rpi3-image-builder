@@ -5,11 +5,6 @@ This script builds an OLA image for Rapsberry Pi 3.
 Basically it downloads the latests raspbian lite image, clones the OLA repo and
 sets everything up so that OLA gets compiled on first boot.
 
-#############################################################################
-This script is configured to overclock the rpi3, be careful, use a heatsink.
-(or use the no-oc version)
-#############################################################################
-
 Once you have executed the script, you will have a zip file containing the image and the md5 checksum.
 if you want to put the image on your rpi, first unzip it, then check the md5sum :
 
