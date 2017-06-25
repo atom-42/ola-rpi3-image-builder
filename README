@@ -18,8 +18,6 @@ Your rpi needs to be connected to the internet on its first boot since the syste
 
 Compilation takes about an hour, the rpi3 reboots automatically when it's done and OLA should be working.
 
-A good thing to do when you have a working OLA on your rpi is to backup the sd card, useful if you encounter problems such as
-filesystem corruption due to power loss, or if you want to quickly have another ola node on another rpi,
-without having to wait an hour:
+A good thing to do when you have a working OLA on your rpi is to backup the sd card, useful if you encounter problems such as filesystem corruption due to power loss, or if you want to quickly have another ola node on another rpi, without having to wait an hour:
 
 dd if=/dev/SDCARD of=/home/ola-backup.img bs=4M
