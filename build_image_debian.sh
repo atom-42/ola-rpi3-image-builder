@@ -126,9 +126,6 @@ function setupImage {
     cp -r files/etc $MOUNTPOINT/
     cp -r files/home $MOUNTPOINT/
     cp -r usr $MOUNTPOINT/
-    rm -f $MOUNTPOINT/boot/config.txt.no-oc
-    rm -f $MOUNTPOINT/etc/rc.local.no-oc
-    rm -f $MOUNTPOINT/etc/rc.local.final.no-oc
 }
 
 # unmount Raspbian image
