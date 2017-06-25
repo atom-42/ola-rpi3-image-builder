@@ -125,6 +125,8 @@ function setupImage {
     cd $WORKINGDIR
     cp -r files/etc $MOUNTPOINT/
     cp -r files/home $MOUNTPOINT/
+    cp config.patch $MOUNTPOINT/boot/
+    cp rc.local.final $MOUNTPOINT/etc/
     cp olad.service $MOUNPOINT/etc/systemd/system/
 }
 
@@ -132,6 +134,7 @@ function setupImage {
 function applyPatches {
     cd $WORKINGDIR
     patch $MOUNTPOINT/boot/config.txt < config.patch
+    patch $MOUNTPOINT/etc/rc.local < rc.local.patch
 }
 
 # unmount Raspbian image
