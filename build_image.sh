@@ -1,24 +1,12 @@
 #!/bin/bash
 
-OUT="ola-rpi3-git-$(date +%F-%H%M)" # DEFAULT : "ola-rpi3-git-$(date +%F-%H%M)"
-DEPS="git wget zip"
 RASPBIANURL="https://downloads.raspberrypi.org/raspbian_lite_latest"
-WORKINGDIR=$(pwd)
-BASEDIR="$WORKINGDIR"
 
-# The script must be run as root.
-if (( $EUID != 0 )); then
-    echo "Please run as root"
-    exit 42
-fi
-
-function wait {
-    echo "Press any key to continue or CTRL-C to stop..."
-    read pause
-}
-
-# configure base directory and variables
-function configBaseDir {
+# configure variables
+function configVars {
+    WORKINGDIR=$(pwd)
+    BASEDIR="$WORKINGDIR"
+    OUT="ola-rpi3-git-$(date +%F-%H%M)"
     echo -n "Choose a base directory : [$BASEDIR] "
     read UBASEDIR
     if [ "$UBASEDIR" != "" ]; then
@@ -27,24 +15,18 @@ function configBaseDir {
     else
         echo "Using default path : $BASEDIR"
     fi
-        INSTALLDIR="$BASEDIR/build"
-        DOWNLOADDIR="$BASEDIR/download"
-        MOUNTPOINT="$BASEDIR/mount"
-}
-
-# update the system and download dependencies
-function installDeps {
-    echo -n "Checking for dependencies, your system will be updated. [C]ontinue, [S]kip : "
-    read upd
-    if [ "$upd" != "C" ]; then
-        echo "skipping..."
+    INSTALLDIR="$BASEDIR/build"
+    DOWNLOADDIR="$BASEDIR/download"
+    MOUNTPOINT="$BASEDIR/mount"
+    echo -n "Choose an output name : [$OUT] "
+    read UOUT
+    if [ "$UOUT" != "" ]; then
+        OUT=$UOUT
+        echo "using new output name : $OUT"
     else
-        echo "Upgrading system"
-        apt-get -y update
-        apt-get -y upgrade
-        echo "Fetching dependencies"
-        apt-get -y install $DEPS
+        echo "Using default output name : $OUT"
     fi
+    
 }
 
 # be sure we have our directories
@@ -171,8 +153,20 @@ function cleanup {
     rm -f $INSTALLDIR/$OUT.md5
 }
 
-configBaseDir || exit 1
-installDeps || exit 2
+# check if we are root
+if (( $EUID != 0 )); then
+    echo "Please run as root"
+    exit 42
+fi
+
+# test if we have all needed tools
+which wget > /dev/null 2>&1 || (echo "Please install wget" && exit 1)
+which git > /dev/null 2>&1 || (echo "Please install git" && exit 1)
+which zip > /dev/null 2>&1 || (echo "Please install zip" && exit 1)
+which patch > /dev/null 2>&1 || (echo "Please install patch" && exit 1)
+which losetup > /dev/null 2>&1 || (echo "Cannot find losetup, we need a loop device" && exit 1)
+
+configVars || exit 2
 setupDirs || exit 3
 downloadRaspbian || exit 4
 setupLoop || exit 5
