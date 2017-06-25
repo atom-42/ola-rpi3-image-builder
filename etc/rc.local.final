@@ -26,15 +26,7 @@ if hostname -I > /etc/hostip; then
   [ -z "$_IP" ] || echo "My network IP address is $_IP"
 fi
 
-# Switch governor to performance
-/usr/local/sbin/set_scaling_governor performance 1>/dev/null
-
 # Fix NTP in case we are using built-in wifi
 /sbin/iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
-
-# Print rpi status
-/usr/local/sbin/status
-
-
 
 exit 0
