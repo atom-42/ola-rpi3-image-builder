@@ -1,5 +1,5 @@
---- rc.local	2017-06-25 19:25:09.169983505 +0200
-@@ -20,11 +20,47 @@
+--- rc.local	2017-06-25 20:31:00.807951911 +0200
+@@ -20,10 +20,47 @@
      rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
  fi
  
@@ -10,8 +10,7 @@
 -fi
 +# Fix NTP in case we are using built-in wifi
 +/sbin/iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
- 
--exit 0
++ 
 +# add ola user with password "openlighting"
 +/usr/sbin/useradd ola -m -G adm,dialout,sudo,plugdev,users,input,netdev,spi,i2c,gpio
 +echo "ola:openlighting" | chpasswd
@@ -32,8 +31,8 @@
 +	python2.7-numpy
 +
 +# patch boot/config.txt in case it's been updated by the upgrade
-+cd /boot && /usr/bin/patch config.txt < config.patch
- 
++cd /boot && /usr/bin/patch config.txt < config.txt.patch
++ 
 +# modify dns resolver
 +echo "nameserver 208.67.222.222" > /etc/resolv.conf
 +
@@ -51,5 +50,5 @@
 +rm -f /etc/rc.local
 +mv /etc/rc.local.final /etc/rc.local
 +/sbin/reboot
-+
-+exit 0
+ 
+ exit 0
