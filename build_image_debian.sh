@@ -126,6 +126,7 @@ function setupImage {
     cp -r files/etc $MOUNTPOINT/
     cp -r files/home $MOUNTPOINT/
     cp -r usr $MOUNTPOINT/
+    cp etc/systemd/system/olad.service $MOUNPOINT/etc/systemd/system/
 }
 
 # unmount Raspbian image
