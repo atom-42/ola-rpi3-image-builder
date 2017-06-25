@@ -102,6 +102,7 @@ function setupLoop {
 function mountRaspbian {
     echo "Mounting Raspbian image"
     mount "$LOOP"p2 $MOUNTPOINT
+    mount "$LOOP"p1 $MOUNTPOINT/boot/
 }
 
 # clone ola
@@ -135,6 +136,7 @@ function applyPatches {
 # unmount Raspbian image
 function unmountRaspbian {
     echo "Unmounting Raspbian image"
+    umount $MOUNTPOINT/boot
     umount $MOUNTPOINT
 }
 
