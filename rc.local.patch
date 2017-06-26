@@ -1,5 +1,26 @@
---- rc.local	2017-06-25 20:31:00.807951911 +0200
-@@ -20,10 +20,47 @@
+--- rc.local.orig	2017-06-26 11:25:50.172038160 +0200
++++ rc.local.mod	2017-06-26 11:32:07.745544254 +0200
+@@ -1,4 +1,4 @@
+-#!/bin/sh -e
++#!/bin/bash
+ #
+ # rc.local
+ #
+@@ -11,7 +11,12 @@
+ #
+ # By default this script does nothing.
+ 
+-# assume there is no /etc/hostip until we have run at least once
++set -e
++
++# Let's log everything to syslog, just in case
++exec 1> >(logger -s -t $(basename $0)) 2>&1
++
++# Assume there is no /etc/hostip until we have run at least once
+ if [ ! -f /etc/hostip ]; then
+     # once-off initialization
+     echo "Welcome to Raspberry Pi - one-off initialization"
+@@ -20,10 +25,47 @@
      rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
  fi
  
@@ -11,14 +32,14 @@
 +# Fix NTP in case we are using built-in wifi
 +/sbin/iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
 + 
-+# add ola user with password "openlighting"
++# Add ola user with password "openlighting"
 +/usr/sbin/useradd ola -m -G adm,dialout,sudo,plugdev,users,input,netdev,spi,i2c,gpio
 +echo "ola:openlighting" | chpasswd
 +
-+# change owner of ola's home directory since it was created before the user
++# Change owner of ola's home directory since it was created before the user
 +/bin/chown -R ola:ola /home/ola
 +
-+# install dependencies needed to compile
++# Install dependencies needed to compile
 +/usr/bin/apt-get -y update
 +/usr/bin/apt-get -y --force-yes upgrade
 +/usr/bin/apt-get autoclean
@@ -33,10 +54,10 @@
 +# patch boot/config.txt in case it's been updated by the upgrade
 +cd /boot && /usr/bin/patch config.txt < config.txt.patch
 + 
-+# modify dns resolver
++# Modify dns resolver
 +echo "nameserver 208.67.222.222" > /etc/resolv.conf
 +
-+# compile ola
++# Compile ola
 +/bin/su ola -c "cd /home/ola/ola && autoreconf -i"
 +/bin/su ola -c "cd /home/ola/ola && ./configure --enable-rdm-tests"
 +/bin/su ola -c "cd /home/ola/ola && make -j4"
@@ -46,7 +67,7 @@
 +/bin/systemctl enable olad
 +/bin/systemctl enable ssh
 +
-+# replace this one time script with the final version
++# Replace this one time script with the final version
 +rm -f /etc/rc.local
 +mv /etc/rc.local.final /etc/rc.local
 +/sbin/reboot
