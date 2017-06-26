@@ -1,5 +1,5 @@
 --- rc.local.orig	2017-06-26 11:25:50.172038160 +0200
-+++ rc.local.mod	2017-06-26 11:32:07.745544254 +0200
++++ rc.local.mod	2017-06-26 12:19:20.012525259 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/sh -e
 +#!/bin/bash
@@ -20,7 +20,7 @@
  if [ ! -f /etc/hostip ]; then
      # once-off initialization
      echo "Welcome to Raspberry Pi - one-off initialization"
-@@ -20,10 +25,47 @@
+@@ -20,10 +25,44 @@
      rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
  fi
  
@@ -51,9 +51,6 @@
 +	libusb-1.0-0-dev liblo-dev libavahi-client-dev avahi-daemon libprotoc-dev \
 +	python2.7-numpy
 +
-+# patch boot/config.txt in case it's been updated by the upgrade
-+cd /boot && /usr/bin/patch config.txt < config.txt.patch
-+ 
 +# Modify dns resolver
 +echo "nameserver 208.67.222.222" > /etc/resolv.conf
 +
