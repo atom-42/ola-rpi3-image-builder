@@ -109,7 +109,7 @@ function setupImage {
     cp -r files/home $MOUNTPOINT/
     cp config.txt.patch $MOUNTPOINT/boot/
     cp rc.local.final $MOUNTPOINT/etc/
-    cp olad.service $MOUNPOINT/etc/systemd/system/
+    cp olad.service $MOUNTPOINT/etc/systemd/system/
 }
 
 # apply different patches to boot/config.txt and etc/rc.local
