@@ -1,12 +1,12 @@
 --- rc.local.orig	2017-06-26 11:25:50.172038160 +0200
-+++ rc.local.mod	2017-06-26 12:19:20.012525259 +0200
++++ rc.local.mod	2017-06-28 09:29:49.640594504 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/sh -e
 +#!/bin/bash
  #
  # rc.local
  #
-@@ -11,7 +11,12 @@
+@@ -11,7 +11,24 @@
  #
  # By default this script does nothing.
  
@@ -14,13 +14,25 @@
 +set -e
 +
 +# Let's log everything to syslog, just in case
-+exec 1> >(logger -s -t $(basename $0)) 2>&1
++#exec 1> >(logger -s -t $(basename $0)) 2>&1
++
++readonly SCRIPT_NAME=$(basename $0)
++
++log() {
++  echo "$@"
++  logger -p user.notice -t $SCRIPT_NAME "$@"
++}
++
++err() {
++  echo "$@" >&2
++  logger -p user.error -t $SCRIPT_NAME "$@"
++}
 +
 +# Assume there is no /etc/hostip until we have run at least once
  if [ ! -f /etc/hostip ]; then
      # once-off initialization
      echo "Welcome to Raspberry Pi - one-off initialization"
-@@ -20,10 +25,44 @@
+@@ -20,10 +37,46 @@
      rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
  fi
  
@@ -29,44 +41,46 @@
 -  _IP=`cat /etc/hostip`
 -  [ -z "$_IP" ] || echo "My network IP address is $_IP"
 -fi
-+# Fix NTP in case we are using built-in wifi
-+/sbin/iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
++log "Fix NTP in case we are using built-in wifi"
++iptables -t mangle -I POSTROUTING 1 -o wlan0 -p udp --dport 123 -j TOS --set-tos 0x00
 + 
-+# Add ola user with password "openlighting"
-+/usr/sbin/useradd ola -m -G adm,dialout,sudo,plugdev,users,input,netdev,spi,i2c,gpio
++log "Add ola user with password 'openlighting'"
++useradd ola -m -G adm,dialout,sudo,plugdev,users,input,netdev,spi,i2c,gpio
 +echo "ola:openlighting" | chpasswd
 +
-+# Change owner of ola's home directory since it was created before the user
-+/bin/chown -R ola:ola /home/ola
++log "Change owner of ola's home directory since it was created before the user"
++chown -R ola:ola /home/ola
 +
-+# Install dependencies needed to compile
-+/usr/bin/apt-get -y update
-+/usr/bin/apt-get -y --force-yes upgrade
-+/usr/bin/apt-get autoclean
-+/usr/bin/apt-get clean
-+/usr/bin/apt-get -y install libcppunit-dev libcppunit-1.13-0 uuid-dev pkg-config \
++log "Upgrade system and install dependencies for OLA""
++apt-get -y update
++apt-get -y --force-yes upgrade
++apt-get autoclean
++apt-get clean
++apt-get -y install libcppunit-dev libcppunit-1.13-0 uuid-dev pkg-config \
 +	libncurses5-dev libtool autoconf automake g++ libmicrohttpd-dev \
 +	libmicrohttpd10 protobuf-compiler libprotobuf-lite9 python-protobuf \
 +	libprotobuf-dev zlib1g-dev bison flex make libftdi-dev libftdi1 \
 +	libusb-1.0-0-dev liblo-dev libavahi-client-dev avahi-daemon libprotoc-dev \
 +	python2.7-numpy
 +
-+# Modify dns resolver
++log "Modify dns resolver"
 +echo "nameserver 208.67.222.222" > /etc/resolv.conf
 +
-+# Compile ola
-+/bin/su ola -c "cd /home/ola/ola && autoreconf -i"
-+/bin/su ola -c "cd /home/ola/ola && ./configure --enable-rdm-tests"
-+/bin/su ola -c "cd /home/ola/ola && make -j4"
-+/bin/su ola -c "cd /home/ola/ola && make check"
-+cd /home/ola/ola && /usr/bin/make install
-+/sbin/ldconfig
-+/bin/systemctl enable olad
-+/bin/systemctl enable ssh
++log "Compile OLA"
++cd /home/ola/ola
++su ola -c "autoreconf -i" || err "autoreconf failed"
++su ola -c "./configure --enable-rdm-tests" || err "configure failed, see /home/ola/ola/config.log"
++su ola -c "make -j4" || err "make failed"
++su ola -c "make check" || err "make check failed"
++make install || err "make install failed"
++ldconfig || err "ldconfig failed"
 +
-+# Replace this one time script with the final version
++log "Enable olad service"
++systemctl enable olad || err "systemctl failed"
++
++log "Replace this one time script with the final version"
 +rm -f /etc/rc.local
 +mv /etc/rc.local.final /etc/rc.local
-+/sbin/reboot
++reboot
  
  exit 0
