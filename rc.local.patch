@@ -1,20 +1,17 @@
 --- rc.local.orig	2017-06-26 11:25:50.172038160 +0200
-+++ rc.local.mod	2017-06-28 09:29:49.640594504 +0200
++++ rc.local.mod	2017-06-28 10:28:34.863708568 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/sh -e
 +#!/bin/bash
  #
  # rc.local
  #
-@@ -11,7 +11,24 @@
+@@ -11,7 +11,21 @@
  #
  # By default this script does nothing.
  
 -# assume there is no /etc/hostip until we have run at least once
 +set -e
-+
-+# Let's log everything to syslog, just in case
-+#exec 1> >(logger -s -t $(basename $0)) 2>&1
 +
 +readonly SCRIPT_NAME=$(basename $0)
 +
@@ -32,7 +29,7 @@
  if [ ! -f /etc/hostip ]; then
      # once-off initialization
      echo "Welcome to Raspberry Pi - one-off initialization"
-@@ -20,10 +37,46 @@
+@@ -20,10 +34,52 @@
      rm /etc/ssh/ssh_host_* && dpkg-reconfigure openssh-server
  fi
  
@@ -51,11 +48,17 @@
 +log "Change owner of ola's home directory since it was created before the user"
 +chown -R ola:ola /home/ola
 +
-+log "Upgrade system and install dependencies for OLA""
++log "Update Raspbian"
 +apt-get -y update
++
++log "Upgrade RAspbian"
 +apt-get -y --force-yes upgrade
++
++log "Cleaning packages"
 +apt-get autoclean
 +apt-get clean
++
++log "Installing dependencies for OLA"
 +apt-get -y install libcppunit-dev libcppunit-1.13-0 uuid-dev pkg-config \
 +	libncurses5-dev libtool autoconf automake g++ libmicrohttpd-dev \
 +	libmicrohttpd10 protobuf-compiler libprotobuf-lite9 python-protobuf \
@@ -68,15 +71,15 @@
 +
 +log "Compile OLA"
 +cd /home/ola/ola
-+su ola -c "autoreconf -i" || err "autoreconf failed"
-+su ola -c "./configure --enable-rdm-tests" || err "configure failed, see /home/ola/ola/config.log"
-+su ola -c "make -j4" || err "make failed"
-+su ola -c "make check" || err "make check failed"
-+make install || err "make install failed"
-+ldconfig || err "ldconfig failed"
++su ola -c "autoreconf -i" || (err "autoreconf failed" && exit 1)
++su ola -c "./configure --enable-rdm-tests" || (err "configure failed, see /home/ola/ola/config.log" && exit 1)
++su ola -c "make -j4" || (err "make failed" && exit 1)
++su ola -c "make check" || (err "make check failed" && exit 1)
++make install || (err "make install failed" && exit 1)
++ldconfig || (err "ldconfig failed" && exit 1)
 +
 +log "Enable olad service"
-+systemctl enable olad || err "systemctl failed"
++systemctl enable olad || (err "systemctl failed" && exit 1)
 +
 +log "Replace this one time script with the final version"
 +rm -f /etc/rc.local
